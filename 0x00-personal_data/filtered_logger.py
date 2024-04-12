@@ -56,9 +56,9 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
 def main():
     """Logs the information about user records in a table.
 
-    This function retrieves user records from a database table and logs the information
-    using a logger. It fetches the specified fields from the table, formats the records,
-    and creates log records for each user.
+    This function retrieves user records from a database table and logs the
+    information using a logger. It fetches the specified fields from
+    the table, formats the records, and creates log records for each user.
 
     Args:
         None
