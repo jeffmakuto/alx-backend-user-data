@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-""" Auth module """
+"""Auth Class for user attributes validation
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -12,51 +14,33 @@ import uuid
 
 
 def _hash_password(password: str) -> str:
+    """Takes in password string argument
+    Returns bytes (salted_hashed)
     """
-    Takes in a password string arguments
-    and returns bytes.
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    Args:
-        password (str): password
-
-    Return:
-        string bytes - salted hashed
-    """
-    return bcrypti.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
 def _generate_uuid() -> str:
+    """Returns string repr of a new UUID
+    Use uuid module
     """
-     return a string representation of a new UUID
-     """
-     return str(uuid.uuid4()) 
+    return str(uuid.uuid4())
 
 
 class Auth:
+    """Auth class to interact with the authentication database
     """
-    Auth class to interact with the authentication database.
-    """
-    def __init__(self) -> None:
-        """
-        Initialization
+
+    def __init__(self):
+        """Initializes DB
         """
         self._db = DB()
 
     def register_user(self, email: str, password: str) -> User:
-        """
-        Take mandatory email and password string arguments
-        and return a User object.
-        If a user already exist with the passed email, raise
-        a ValueError with the message User <user's email> already exists.
-        If not, hash the password with _hash_password,
-        save the user to the database using self._db
-        and return the User object.
-
-        Args:
-            email (str): email
-            password (str): password
-
-        Returns:
-            User object
+        """Takes mandatory string (email, password) arguments
+        Returns a User object
+        Raise ValueError if exists
+        User <user's email> already exists
         """
         try:
             self._db.find_user_by(email=email)
@@ -67,15 +51,8 @@ class Auth:
             return new_user
 
     def valid_login(self, email: str, password: str) -> bool:
-        """
-        Validate user login credentials.
-
-        Args:
-            email (str): The email of the user.
-            password (str): The password of the user.
-
-        Returns:
-            bool: True if the login is valid, False otherwise.
+        """Expect email and password required arguments
+        Returns a boolean
         """
         try:
             user = self._db.find_user_by(email=email)
@@ -86,17 +63,10 @@ class Auth:
         return False
 
     def create_session(self, email: str) -> str:
-        """
-        Takes an email string argument and returns the session ID as a string.
-        The method should find the user corresponding to the email, generate
-        a new UUID and store it in the database as the user’s session_id,
-        then return the session ID.
-
-        Args:
-            email (str): email of user
-
-        Returns:
-            session ID as a string
+        """Takes email string argument
+        Returns the session ID as a string
+        Find user corresponding to email, generate new UUID
+        store in database as users session_id, return session ID
         """
         session_id = _generate_uuid()
         try:
@@ -107,8 +77,7 @@ class Auth:
             return None
 
     def get_user_from_session_id(self, session_id: str) -> str:
-        """
-        Takes single session_id string argument
+        """Takes single session_id string argument
         Returns corresponding User or None
         """
         try:
@@ -118,8 +87,7 @@ class Auth:
             return None
 
     def destroy_session(self, user_id: int) -> None:
-        """
-        Takes a single user_id integer srgument
+        """Takes a single user_id integer srgument
         Returns None
         """
         try:
