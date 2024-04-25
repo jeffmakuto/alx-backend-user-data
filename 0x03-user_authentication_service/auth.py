@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """ Auth module """
+from db import DB
 
 
 def _hash_password(password: str) -> str:
@@ -13,4 +14,41 @@ def _hash_password(password: str) -> str:
     Return:
         string bytes - salted hashed
     """
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    return bcrypti.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+
+class Auth:
+    """
+    Auth class to interact with the authentication database.
+    """
+    def __init__(self) -> None:
+        """
+        Initialization
+        """
+        self._db = DB()
+
+    def register_user(email: str, password: str) -> User:
+        """
+        Take mandatory email and password string arguments
+        and return a User object.
+        If a user already exist with the passed email, raise
+        a ValueError with the message User <user's email> already exists.
+        If not, hash the password with _hash_password,
+        save the user to the database using self._db
+        and return the User object.
+
+        Args:
+            email (str): email
+            password (str): password
+
+        Returns:
+            User object
+        """
+        try:
+            self._db.find_user_by(email=email)
+            raise ValueError("User {} already exists.".format(email))
+        except NoResultFound:
+            hashed_password = _hash_password(password)
+            new_user = self._db.add_user(email, hashed_password)
+            return new_user
+
