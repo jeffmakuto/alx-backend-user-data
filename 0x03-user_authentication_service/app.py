@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ Flask app """
-from flask import Flask, jsonify, request
-from typing import Dict
+from flask import Flask, jsonify, request, abort
 from auth import Auth
 
 
@@ -10,7 +9,7 @@ app.url_map.strict_slashes = False
 AUTH = Auth()
 
 @app.route('/', methods=['GET'])
-def welcome() -> Dict[str, str]:
+def welcome() -> str:
     """
     Returns a JSON response with a welcome message.
 
@@ -20,7 +19,7 @@ def welcome() -> Dict[str, str]:
     return jsonify({"message": "Bienvenue"})
 
 @app.route('/users', methods=['POST'])
-def users(email: str, password: str) -> Dict[str, str]:
+def users() -> str:
     """
     Register a new user.
 
@@ -39,6 +38,21 @@ def users(email: str, password: str) -> Dict[str, str]:
     except Exception:
         return jsonify({"message": "email already registered"}), 400
 
+@app.route('/sessions', methods=['POST'])
+def login() -> str:
+    """
+    Returns request with form data with email and password fields
+    """
+    user_request = request.form
+    user_email = user_request.get('email', '')
+    user_password = user_request.get('password', '')
+    valid_log = AUTH.valid_login(user_email, user_password)
+    if not valid_log:
+        abort(401)
+    response = make_response(jsonify({"email": user_email,
+                                      "message": "logged in"}))
+    response.set_cookie('session_id', AUTH.create_session(user_email))
+    return response
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
