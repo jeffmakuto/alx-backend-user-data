@@ -34,7 +34,7 @@ class Auth:
         """
         self._db = DB()
 
-    def register_user(email: str, password: str) -> User:
+    def register_user(self, email: str, password: str) -> User:
         """
         Take mandatory email and password string arguments
         and return a User object.
@@ -59,7 +59,7 @@ class Auth:
             new_user = self._db.add_user(email, hashed_password)
             return new_user
 
-    def valid_login(email: str, password: str) -> bool:
+    def valid_login(self, email: str, password: str) -> bool:
         """
         Validate user login credentials.
 
@@ -77,3 +77,25 @@ class Auth:
         except NoResultFound:
             pass
         return False
+
+    def create_session(self, email: str) -> str:
+        """
+        Takes an email string argument and returns the session ID as a string.
+        The method should find the user corresponding to the email, generate
+        a new UUID and store it in the database as the user’s session_id,
+        then return the session ID.
+
+        Args:
+            email (str): email of user
+
+        Returns:
+            session ID as a string
+        """
+        session_id = _generate_uuid()
+        try:
+            user = self._db.find_user_by(email=email)
+            self._db.update_user(user.id, session_id=session_id)
+            return session_id
+        except NoResultFound:
+            return None
+
